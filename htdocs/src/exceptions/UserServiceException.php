@@ -1,5 +1,5 @@
 <?php
-abstract class UserServiceException extends Exception {
+class UserServiceException extends Exception {
     // Base class for all user service exceptions
     protected $statusCode = 400;
 

@@ -3,7 +3,12 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "Vendor\\Videogalleryapi\\": "src/"
+            "Vendor\\Videogalleryapi\\": "htdocs/src/"
+        }
+    },
+    "autoload-dev": {
+    "psr-4": {
+        "Vendor\\Videogalleryapi\\Tests\\": "tests/"
         }
     },
     "authors": [

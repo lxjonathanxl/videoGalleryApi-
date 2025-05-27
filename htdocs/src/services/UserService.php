@@ -8,9 +8,11 @@ class UserService {
     private $userModel;
     private $deviceModel;
     private $videoModel;
+    private $pdo;
 
-    public function __construct() {
-        $this->userModel = new User();
+    public function __construct(PDO $pdo) {
+        $this->pdo = $pdo;
+        $this->userModel = new User($pdo);
         $this->deviceModel = new Device();
         $this->videoModel = new Video();
     }
