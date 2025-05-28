@@ -33,6 +33,29 @@ class Video {
         return $this->pdo->lastInsertId();
     }
 
+    public function beginTransaction() {
+        $this->pdo->beginTransaction();
+    }
+
+    public function commit() {
+        $this->pdo->commit();
+    }
+
+    public function rollBack() {
+        $this->pdo->rollBack();
+    }
+
+    public function prepare($sql) {
+        return $this->pdo->prepare($sql);
+    }
+
+    public function findById($videoId) {
+        $sql = "SELECT * FROM videos WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $videoId]);
+        return $stmt->fetchObject(Video::class);
+    }
+
     // Get all videos for a specific device
     public function findByDeviceId($deviceId) {
         $sql = "SELECT * FROM videos WHERE device_id = :device_id";
