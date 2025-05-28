@@ -10,7 +10,7 @@ class UserService {
     private $videoModel;
     private $pdo;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(?PDO $pdo = null) {
         $this->pdo = $pdo;
         $this->userModel = new User($pdo);
         $this->deviceModel = new Device();
