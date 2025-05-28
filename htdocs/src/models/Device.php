@@ -67,4 +67,17 @@ class Device {
     $stmt->execute(['code' => $deviceCode]);
     return $stmt->fetchColumn(); // Returns ID or false
     }
+
+    public function findById($deviceId) {
+    $sql = "SELECT * FROM devices WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute(['id' => $deviceId]);
+    return $stmt->fetchObject(Device::class);
+    }
+
+    public function delete($deviceId) {
+    $sql = "DELETE FROM devices WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute(['id' => $deviceId]);
+    }
 }
