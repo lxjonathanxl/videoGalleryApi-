@@ -1,23 +1,31 @@
 <?php
 require_once __DIR__ . '/../models/Device.php';
-require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../services/UserService.php';
 require_once __DIR__ . '/../exceptions/DeviceServiceException.php';
+require_once __DIR__ . '/../exceptions/DeviceNotFoundException.php';
+require_once __DIR__ . '/../exceptions/InvalidInputException.php';
+require_once __DIR__ . '/../exceptions/DeviceLimitExceededException.php';
+require_once __DIR__ . '/../exceptions/DatabaseException.php';
+require_once __DIR__ . '/../exceptions/UnauthorizedException.php';
+
+
 
 class DeviceService {
     private $deviceModel;
-    private $userModel;
+    private $userService;
     private $maxDevicesPerUser = 5; // Configurable limit
 
-    public function __construct() {
-        $this->deviceModel = new Device();
-        $this->userModel = new User();
+    public function __construct(?Device $deviceModel = null, ?UserService $userService = null) {
+        $this->deviceModel = $deviceModel ?? new Device();
+        $this->userService = $userService ?? new UserService();
     }
+
 
     // 1. Register new device
     public function registerDevice(int $userId, string $deviceCode): array {
         try {
             // Validate user exists
-            if (!$this->userModel->findById($userId)) {
+            if (!$this->userService->userExists($userId)) {
                 throw new DeviceNotFoundException("User not found");
             }
 
@@ -60,7 +68,7 @@ class DeviceService {
 
     // 3. Find user devices by user ID
     public function findUserDevices(int $userId): array {
-        if (!$this->userModel->findById($userId)) {
+        if (!$this->userService->userExists($userId)) {
             throw new DeviceNotFoundException("User not found");
         }
         

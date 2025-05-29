@@ -117,6 +117,15 @@ class UserService {
         }
     }
 
+    public function userExists(int $userId): bool {
+        try {
+            return (bool) $this->userModel->findById($userId);
+        } catch (PDOException $e) {
+            throw new DatabaseException("Failed to check if user exists: " . $e->getMessage());
+        }
+    }
+
+
     public function login(string $email, string $password): int {
         try {
             $userId = $this->findIdByEmail($email);

@@ -11,31 +11,27 @@ class UserServiceTest extends TestCase {
     private UserService $userService;
 
     protected function setUp(): void {
-        // Create PDO connection
-        $this->pdo = new PDO("mysql:host=localhost", 'root', '');
+        // Create SQLite in-memory connection
+        $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Create and use test database
-        $this->pdo->exec("CREATE DATABASE IF NOT EXISTS test_database");
-        $this->pdo->exec("USE test_database");
+        // Enable foreign key support (optional here)
+        $this->pdo->exec('PRAGMA foreign_keys = ON;');
 
-        // Load SQL from the SQL-only file
+        // Create users table
         $sql = require __DIR__ . '/../src/migrations/users_table_sql.php';
         $this->pdo->exec($sql);
-
-        // Start transaction for isolation
-        $this->pdo->beginTransaction();
 
         // Initialize service
         $this->userService = new UserService($this->pdo);
     }
 
     protected function tearDown(): void {
-        // Rollback changes after each test
-        $this->pdo->rollBack();
+        // No rollback needed because SQLite in-memory is reset every test instance
+        unset($this->pdo);
     }
 
-    // ✅ All your test methods here...
+    // ✅ Test methods
 
     public function testRegisterUserSuccess(): void {
         $email = 'test@example.com';

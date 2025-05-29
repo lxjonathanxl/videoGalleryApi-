@@ -9,9 +9,13 @@ class Device {
     public $device_code;
     public $registered_at;
 
-    public function __construct() {
-        global $pdo;
-        $this->pdo = $pdo;
+    public function __construct(?PDO $externalPdo = null) {
+        if ($externalPdo) {
+            $this->pdo = $externalPdo;
+        } else {
+            global $pdo;
+            $this->pdo = $pdo;
+        }
     }
 
     // Register new device to user
