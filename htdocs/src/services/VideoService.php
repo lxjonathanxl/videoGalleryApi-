@@ -1,30 +1,33 @@
 <?php
 require_once __DIR__ . '/../models/Video.php';
-require_once __DIR__ . '/../models/Device.php';
-require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../services/DeviceService.php';
+require_once __DIR__ . '/../services/UserService.php';
 require_once __DIR__ . '/../exceptions/VideoServiceException.php';
+require_once __DIR__ . '/../exceptions/OwnershipVerificationException.php';
+
 
 class VideoService {
     private $videoModel;
-    private $deviceModel;
-    private $userModel;
+    private $deviceService;
+    private $userService;
 
-    public function __construct() {
-        $this->videoModel = new Video();
-        $this->deviceModel = new Device();
-        $this->userModel = new User();
+    public function __construct(?Video $videoModel = null,
+     ?UserService $userService = null, ?DeviceService $deviceService = null) {
+        $this->videoModel = $videoModel ?? new Video();
+        $this->userService = $userService ?? new UserService();
+        $this->deviceService = $deviceService ?? new DeviceService();
     }
 
     // 1. Register video to all user devices
     public function registerNewVideo(string $videoUrl, int $userId): array {
         try {
             // Validate user exists
-            if (!$this->userModel->findById($userId)) {
+            if (!$this->userService->userExists($userId)) {
                 throw new VideoServiceException("User not found", 404);
             }
 
             // Get all user devices
-            $devices = $this->deviceModel->findByUserId($userId);
+            $devices = $this->deviceService->findUserDevices($userId);
             if (empty($devices)) {
                 throw new VideoServiceException("No devices registered", 400);
             }
@@ -56,13 +59,13 @@ class VideoService {
             }
 
             // Verify device ownership
-            $device = $this->deviceModel->findById($originalVideo->device_id);
+            $device = $this->deviceService->findDeviceById($originalVideo->device_id);
             if (!$device || $device->user_id !== $userId) {
                 throw new OwnershipVerificationException("Video not owned by user", 403);
             }
 
             // Get all devices for user
-            $userDevices = $this->deviceModel->findByUserId($userId);
+            $userDevices = $this->deviceService->findUserDevices($userId);
             $deviceIds = array_column($userDevices, 'id');
 
             // Delete all videos with same URL across user devices
@@ -82,16 +85,20 @@ class VideoService {
 
     // 3. Get video IDs from first user device
     public function getVideosIdFromUser(int $userId): array {
-        $devices = $this->deviceModel->findByUserId($userId);
-        if (empty($devices)) {
-            return [];
+        try{
+            $devices = $this->deviceService->findUserDevices($userId);
+            if (empty($devices)) {
+                throw new VideoServiceException("user: $userId has no devices", 400);
+            }
+            
+            // Get first device (ordered by earliest registration)
+            usort($devices, fn($a, $b) => $a->id <=> $b->id);
+            $firstDevice = $devices[0];
+            
+            return $this->videoModel->findByDeviceId($firstDevice->id); 
+        } catch (PDOException $e) {
+            throw new VideoServiceException("failed to retrive user: $userId devices " . $e->getMessage(), 500);
         }
-        
-        // Get first device (ordered by earliest registration)
-        usort($devices, fn($a, $b) => $a->id <=> $b->id);
-        $firstDevice = $devices[0];
-        
-        return $this->videoModel->findByDeviceId($firstDevice->id);
     }
 
     // 4. Get video URL from ID

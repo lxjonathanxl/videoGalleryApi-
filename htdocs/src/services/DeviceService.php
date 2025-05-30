@@ -66,6 +66,20 @@ class DeviceService {
         return $device;
     }
 
+    public function findDeviceById(int $deviceId) {
+        try {
+            $device = $this->deviceModel->findById($deviceId);
+
+            if (!$device) {
+                throw new DeviceNotFoundException("Device with ID $deviceId not found");
+            }
+
+            return $device;
+        } catch (PDOException $e) {
+            throw new DatabaseException("Failed to retrieve device: " . $e->getMessage());
+        }
+}
+
     // 3. Find user devices by user ID
     public function findUserDevices(int $userId): array {
         if (!$this->userService->userExists($userId)) {
