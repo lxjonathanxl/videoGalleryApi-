@@ -1,0 +1,49 @@
+# Node (if using frontend stuff)
+node_modules/
+
+# PHP Composer
+vendor/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# PHPUnit logs and cache
+phpunit.result.cache
+
+# Local SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+
+# Backup files
+*.bak
+*.tmp
+
+# Coverage reports
+coverage/
+
+# Composer lock (optional if library, not app)
+# composer.lock
+
+# Ignore Mac folder attributes
+*.AppleDouble
+*.LSOverride
+
+# Ignore upload/test folders (if any)
+uploads/
+tests/output/
+
+# Ignore PHPStorm meta files
+.phpstorm.meta.php
