@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
-$db   = 'videogalleryapi';
-$user = 'root';         // Default XAMPP username
-$pass = '';             // Default XAMPP password (empty)
+$host = $_ENV['DB_HOST'];
+$db   = $_ENV['DB_NAME'];
+$user = $_ENV['DB_USER'];
+$pass = $_ENV['DB_PASS'];             // Default XAMPP password (empty)
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

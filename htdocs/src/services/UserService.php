@@ -19,6 +19,10 @@ class UserService {
 
     // 1. Register new user
     public function registerUser(string $email, string $password): array {
+        if ($this->userModel->findByEmail($email)) {
+            throw new UserServiceException('Email already registered');
+        }
+        
         try {
             // Validate password strength
             if (strlen($password) < 8) {
