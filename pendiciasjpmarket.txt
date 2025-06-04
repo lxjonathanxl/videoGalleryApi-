@@ -1,0 +1,18 @@
+Testar importação estoque atualização
+Confirmar auto popular imagem
+sugestão - funcionalidade scanner camera celular
+sugestão - encarte botão instagram
+sugestão - botão ação selecionar multiplos produtos/confirmação ao excluir multiplos produtos
+segustão - ver venda enviar comprovante/nota whats
+
+envio modelo improssora etiquetas/cod de barras
+
+validar teste de cadastro menor de idade
+
+validar campo idade cadastro
+
+Percebi que alguns itens o nome fica em amarelo,  outros roxo, etc
+
+validar onde visualizar os produtos negativos
+
+envio de laertas por email

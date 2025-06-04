@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/../services/UserService.php';
+require_once __DIR__ . '/../core/Request.php';
+require_once __DIR__ . '/../core/Response.php';
+
 class AuthController {
     private $userService;
     
