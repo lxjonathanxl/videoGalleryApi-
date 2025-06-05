@@ -2,8 +2,13 @@
 class Router {
     private $routes = [];
     
-    public function addRoute(string $method, string $path, callable $handler) {
-        $this->routes[] = ['method' => $method, 'path' => $path, 'handler' => $handler];
+    public function addRoute(string $method,
+     string $path, callable $handler,
+     bool $requireAuth = false) {
+        $this->routes[] = ['method' => $method,
+         'path' => $path,
+          'handler' => $handler,
+        'requireAuth' => $requireAuth];
     }
     
     public function dispatch() {
@@ -19,6 +24,12 @@ class Router {
 
     foreach ($this->routes as $route) {
         if ($route['method'] === $requestMethod && $route['path'] === $requestUri) {
+            // Handle authentication
+            if ($route['requireAuth']) {
+                $userId = \App\Middleware\AuthMiddleware::authenticate();
+                // Pass user ID to handler
+                return call_user_func($route['handler'], $userId);
+            }
             return call_user_func($route['handler']);
         }
     }

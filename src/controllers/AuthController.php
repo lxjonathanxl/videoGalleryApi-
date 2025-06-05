@@ -1,7 +1,11 @@
 <?php
+
+use src\Core\JWTHelper;
+
 require_once __DIR__ . '/../services/UserService.php';
 require_once __DIR__ . '/../core/Request.php';
 require_once __DIR__ . '/../core/Response.php';
+require_once __DIR__ . '/../core/JWTHelper.php';
 
 class AuthController {
     private $userService;
@@ -57,4 +61,49 @@ class AuthController {
         
         return $errors;
     }
+
+    public function login() {
+    $input = Request::getJsonBody();
+    
+    // Validate input
+    $errors = $this->validateLogin($input);
+    if (!empty($errors)) {
+        Response::json(400, ['errors' => $errors]);
+    }
+    
+    try {
+        // Authenticate user
+        $user = $this->userService->authenticate(
+            $input['email'],
+            $input['password']
+        );
+        
+        // Generate JWT token
+        $token = JWTHelper::generateToken($user['id']);
+        
+        Response::json(200, [
+            'message' => 'Login successful',
+            'token' => $token,
+            'user_id' => $user['id'],
+            'expires_in' => $_ENV['JWT_EXPIRY']
+        ]);
+    } catch (\Exception $e) {
+        Response::json(401, ['error' => $e->getMessage()]);
+    }
+}
+
+private function validateLogin(array $input): array {
+    $errors = [];
+    
+    if (empty($input['email'])) {
+        $errors['email'] = 'Email is required';
+    }
+    
+    if (empty($input['password'])) {
+        $errors['password'] = 'Password is required';
+    }
+    
+    return $errors;
+}
+
 }

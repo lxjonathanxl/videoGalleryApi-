@@ -41,6 +41,23 @@ class UserService {
         }
     }
 
+    public function authenticate(string $email, string $password): array {
+    $user = $this->userModel->findByEmail($email);
+    
+    if (!$user) {
+        throw new \Exception("Invalid credentials");
+    }
+    
+    if (!password_verify($password, $user->password_hash)) {
+        throw new \Exception("Invalid credentials");
+    }
+    
+    return [
+        'id' => $user->id,
+        'email' => $user->email
+    ];
+}
+
     // 2. Get user devices
     public function getUserDevices(int $userId): array {
         $user = $this->userModel->findById($userId);
