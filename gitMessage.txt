@@ -1,0 +1,6 @@
+whats changed:
+Created playlist migration file to create table on sql it has a name and a user ID.
+Created playlis_videos migration file to create table on sql it has playlist id and video id and the position of said video on the playlist.
+Created playlist model with sql commands
+Created playlist_video model with sql commands
+Created PlaylistService that deal with playlist and playlist_video models
