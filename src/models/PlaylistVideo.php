@@ -10,9 +10,13 @@ class PlaylistVideo {
     public $position;
     public $added_at;
 
-    public function __construct() {
-        global $pdo;
-        $this->pdo = $pdo;
+    public function __construct(?PDO $externalPdo = null) {
+        if ($externalPdo) {
+            $this->pdo = $externalPdo;
+        } else {
+            global $pdo;
+            $this->pdo = $pdo;
+        }
     }
 
     /**
@@ -31,7 +35,7 @@ class PlaylistVideo {
             }
         
             $sql = "INSERT INTO playlist_videos (playlist_id, video_id, position, added_at) 
-                    VALUES (:playlist_id, :video_id, :position, NOW())";
+                    VALUES (:playlist_id, :video_id, :position, CURRENT_TIMESTAMP)";
             
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
