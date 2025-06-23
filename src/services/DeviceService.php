@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../models/Device.php';
+require_once __DIR__ . '/../models/DevicePlaylist.php';
 require_once __DIR__ . '/../services/UserService.php';
+require_once __DIR__ . '/../services/PlaylistService.php';
 require_once __DIR__ . '/../exceptions/DeviceServiceException.php';
 require_once __DIR__ . '/../exceptions/DeviceNotFoundException.php';
 require_once __DIR__ . '/../exceptions/InvalidInputException.php';
@@ -12,12 +14,19 @@ require_once __DIR__ . '/../exceptions/UnauthorizedException.php';
 
 class DeviceService {
     private $deviceModel;
+    private $devicePlaylistModel;
     private $userService;
+    private $playlistService;
     private $maxDevicesPerUser = 5; // Configurable limit
 
-    public function __construct(?Device $deviceModel = null, ?UserService $userService = null) {
+    public function __construct(?Device $deviceModel = null,
+     ?DevicePlaylist $devicePlaylistModel = null,
+     ?UserService $userService = null,
+     ?PlaylistService $playlistService = null) {
         $this->deviceModel = $deviceModel ?? new Device();
+        $this->devicePlaylistModel = $devicePlaylistModel ?? new DevicePlaylist();
         $this->userService = $userService ?? new UserService();
+        $this->playlistService = $playlistService ?? new PlaylistService();
     }
 
 
@@ -83,7 +92,7 @@ class DeviceService {
     // 3. Find user devices by user ID
     public function findUserDevices(int $userId): array {
         if (!$this->userService->userExists($userId)) {
-            throw new DeviceNotFoundException("User not found");
+            throw new DeviceNotFoundException("Device not found since user was not found");
         }
         
         return $this->deviceModel->findByUserId($userId);
@@ -108,5 +117,40 @@ class DeviceService {
         } catch (PDOException $e) {
             throw new DatabaseException("Device deletion failed: " . $e->getMessage());
         }
+    }
+
+    public function assignPlaylistToDevice(int $deviceId, int $playlistId, int $userId): bool {
+        // Verify device ownership
+        $device = $this->deviceModel->findById($deviceId);
+        if ($device->user_id != $userId) {
+            throw new UnauthorizedException("Device not owned by user");
+        }
+
+        // Verify playlist ownership
+        $playlist = $this->playlistService->getPlaylistById($playlistId);
+        if (!$playlist || $playlist->user_id !== $userId) {
+            throw new UnauthorizedException("Playlist not owned by user");
+        }
+
+        return $this->devicePlaylistModel->assignPlaylist($deviceId, $playlistId);
+    }
+
+    public function getDevicePlaybackData(string $deviceCode, int $userId): array {
+        $deviceId = $this->deviceModel->findIdByCode($deviceCode);
+        if (!$deviceId) {
+            throw new DeviceNotFoundException("Device not found");
+        }
+
+        $device = $this->deviceModel->findById($deviceId);
+        if (!$device) {
+           throw new DeviceNotFoundException("Device not found");
+        }
+
+        $activePlaylist = $this->devicePlaylistModel->getActivePlaylist($device->id);
+        if (!$activePlaylist) {
+            throw new DeviceNotFoundException("No active playlist for device");
+        }
+
+        return $this->playlistService->getPlaylistVideos($userId, $activePlaylist['playlist_id']);
     }
 }

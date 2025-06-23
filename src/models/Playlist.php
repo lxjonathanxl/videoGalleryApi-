@@ -10,9 +10,13 @@ class Playlist {
     public $created_at;
     public $updated_at;
 
-    public function __construct() {
-        global $pdo;
-        $this->pdo = $pdo;
+    public function __construct(?PDO $externalPdo = null) {
+        if ($externalPdo) {
+            $this->pdo = $externalPdo;
+        } else {
+            global $pdo;
+            $this->pdo = $pdo;
+        }
     }
 
     public function create($userId, $name) {

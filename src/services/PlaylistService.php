@@ -10,10 +10,12 @@ class PlaylistService {
     private $playlistVideoModel;
     private $videoModel;
 
-    public function __construct() {
-        $this->playlistModel = new Playlist();
-        $this->playlistVideoModel = new PlaylistVideo();
-        $this->videoModel = new Video();
+    public function __construct(?Playlist $playlistModel = null,
+     ?PlaylistVideo $playlistVideoModel = null,
+     ?Video $videoModel = null) {
+        $this->playlistModel = $playlistModel ?? new Playlist();
+        $this->playlistVideoModel = $playlistVideoModel ?? new PlaylistVideo();
+        $this->videoModel = $videoModel ?? new Video();
     }
 
     public function createPlaylist($userId, $name) {
@@ -22,6 +24,10 @@ class PlaylistService {
 
     public function getUserPlaylists($userId) {
         return $this->playlistModel->findByUser($userId);
+    }
+
+    public function getPlaylistById($playlistId) {
+        return $this->playlistModel->findById($playlistId);
     }
 
     public function addVideoToPlaylist($userId, $playlistId, $videoId) {

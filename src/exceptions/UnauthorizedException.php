@@ -1,4 +1,4 @@
 <?php
-class UnauthorizedException extends DeviceServiceException {
+class UnauthorizedException extends Exception {
     protected $statusCode = 403;
 }
