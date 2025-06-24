@@ -1,5 +1,10 @@
 // migrations/002_create_devices_table.php
 <?php
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../..');
+$dotenv->load();
+
 require __DIR__ . '/../config/db.php';
 
 $sql = "CREATE TABLE IF NOT EXISTS devices (
